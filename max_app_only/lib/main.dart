@@ -42,7 +42,7 @@ class _WebScreenState extends State<WebScreen> {
           onPageFinished: (_) => setState(() => _loading = false),
         ),
       )
-      ..loadRequest(Uri.parse('https://gocyclugi.ru/max/'));
+      ..loadRequest(Uri.parse('http://45.133.251.193/max/'));
   }
 
   @override
