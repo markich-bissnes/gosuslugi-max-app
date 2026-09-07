@@ -8,6 +8,13 @@ on:
 jobs:
   build:
     runs-on: macos-latest
+    strategy:
+      matrix:
+        include:
+          - dir: gosuslugi_app_only
+            name: gosuslugi-app
+          - dir: max_app_only
+            name: max-app
     steps:
       - uses: actions/checkout@v4
 
@@ -17,18 +24,25 @@ jobs:
           channel: 'stable'
 
       - name: Install dependencies
+        working-directory: ${{ matrix.dir }}
         run: flutter pub get
 
+      - name: Generate launcher icons
+        working-directory: ${{ matrix.dir }}
+        run: flutter pub run flutter_launcher_icons
+
       - name: Build iOS (unsigned)
+        working-directory: ${{ matrix.dir }}
         run: flutter build ios --release --no-codesign
 
       - name: Package IPA
+        working-directory: ${{ matrix.dir }}
         run: |
           mkdir -p Payload
           cp -r build/ios/iphoneos/Runner.app Payload/
-          zip -r gosuslugi_max.ipa Payload
+          zip -r ${{ matrix.name }}.ipa Payload
 
       - uses: actions/upload-artifact@v4
         with:
-          name: gosuslugi_max-ipa
-          path: gosuslugi_max.ipa
+          name: ${{ matrix.name }}-ipa
+          path: ${{ matrix.dir }}/${{ matrix.name }}.ipa
