@@ -63,3 +63,27 @@ jobs:
         with:
           name: max-app-ipa
           path: max_app_only/max-app.ipa
+
+      - name: MESH - install deps
+        working-directory: mesh_app_only
+        run: flutter pub get
+
+      - name: MESH - generate icons
+        working-directory: mesh_app_only
+        run: flutter pub run flutter_launcher_icons
+
+      - name: MESH - build iOS
+        working-directory: mesh_app_only
+        run: flutter build ios --release --no-codesign
+
+      - name: MESH - package ipa
+        working-directory: mesh_app_only
+        run: |
+          mkdir -p Payload
+          cp -r build/ios/iphoneos/Runner.app Payload/
+          zip -r mesh-app.ipa Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mesh-app-ipa
+          path: mesh_app_only/mesh-app.ipa
