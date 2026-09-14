@@ -126,6 +126,7 @@ Future<void> scheduleWeekly({
     const NotificationDetails(
       iOS: DarwinNotificationDetails(presentAlert: true, presentBadge: true, presentSound: true),
     ),
+    uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
     androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
   );
