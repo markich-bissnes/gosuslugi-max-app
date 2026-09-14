@@ -131,9 +131,9 @@ Future<void> scheduleWeekly({
   );
 }
 
-/// Fetches habits and schedule from the backend and (re)schedules all local
-/// reminders. Safe to call every time the app opens — it wipes and rebuilds
-/// the notification queue so edits made on the website are picked up.
+/// Fetches habits from the backend and (re)schedules local reminders for the
+/// times set on each habit. Safe to call every time the app opens — it wipes
+/// and rebuilds the notification queue so edits made on the website are picked up.
 Future<void> scheduleAllReminders() async {
   await notificationsPlugin.cancelAll();
 
@@ -164,41 +164,6 @@ Future<void> scheduleAllReminders() async {
             minute: minute,
           );
         }
-      }
-    }
-  } catch (_) {
-    // ignore — will retry next launch
-  }
-
-  try {
-    final scheduleResp = await http.get(Uri.parse('$apiBase/schedule')).timeout(const Duration(seconds: 10));
-    if (scheduleResp.statusCode == 200) {
-      final data = jsonDecode(scheduleResp.body) as Map<String, dynamic>;
-      final items = (data['items'] as List? ?? []).cast<Map<String, dynamic>>();
-      for (final s in items) {
-        final time = (s['time'] as String?) ?? '';
-        final parts = time.split(':');
-        if (parts.length != 2) continue;
-        var hour = int.tryParse(parts[0]);
-        var minute = int.tryParse(parts[1]);
-        if (hour == null || minute == null) continue;
-        minute -= 10;
-        if (minute < 0) {
-          minute += 60;
-          hour -= 1;
-          if (hour < 0) hour += 24;
-        }
-        final day = (s['day'] as int?) ?? 0;
-        final title = (s['title'] as String?) ?? 'Занятие';
-        final id = s['id'] as int;
-        await scheduleWeekly(
-          id: 5000 + id,
-          title: 'Через 10 минут: $title',
-          body: 'Загляни в расписание',
-          weekday: day + 1,
-          hour: hour,
-          minute: minute,
-        );
       }
     }
   } catch (_) {
